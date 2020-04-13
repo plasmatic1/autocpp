@@ -7,13 +7,13 @@ DM::OJ automatic copy paste police service!
 1. Register with MOSS and get your user ID
 2. Create a DM::OJ API key
 3. Run `pip install -r requirements.txt` to install the necessary python packages
-4. Create a `settings.py` in the same directory as `main.py`, check the configuration section for the content of the file
+4. Create a `settings.py` in the same directory as `main.py`, check the section below for the content of the settings file
 5. Run `main.py`
 6. :)
 
 ## Configuration
 
-Here is a default configuration file (settings.py).  Aside from the `DMOJ_API_KEY` and `MOSS_ID` keys (which must be changed), other options can be left intact (though `TARGET_HANDLE`, `MODE`, `PROBLEM_ID`, and `PROBLEM_CHECK_COUNT` should also be changed).
+Here is a sample `settings.py`.  Aside from the `DMOJ_API_KEY` and `MOSS_ID` keys (which must be changed), other options can be left intact (though `TARGET_HANDLE`, `MODE`, `PROBLEM_ID`, and `PROBLEM_CHECK_COUNT` should also be changed).
 
 ```python
 # Authentication
