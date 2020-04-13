@@ -1,6 +1,6 @@
+import moss as pymoss
 import requests
 import time
-import mosspy
 import os
 from lang_map import get_ext, get_moss_lang
 from settings import MOSS_ID, DMOJ_HANDLE, DMOJ_URL, MODE, TARGET_HANDLE, PROBLEM_ID, PROBLEM_CHECK_COUNT, \
@@ -50,16 +50,15 @@ def check_problem(problem_id):
 
     # MOSS
     print()
-    moss = mosspy.Moss(MOSS_ID, get_moss_lang(target_lang))
-    moss.addBaseFile(f'subs/target_src.{get_ext(target_lang)}', 'target_submission')
+    moss = pymoss.MOSS(MOSS_ID, get_moss_lang(target_lang), matching_file_limit=2500)
+    moss.add_file_from_disk(f'subs/target_src.{get_ext(target_lang)}', display_name='target_submission')
     for sub_id in other_ids:
-        moss.addFile(f'subs/{sub_id}_src.{get_ext(target_lang)}', sub_id)
+        moss.add_file_from_disk(f'subs/{sub_id}_src.{get_ext(target_lang)}', display_name=sub_id)
 
     print('Sending MOSS query...')
-    url = moss.send()
+    url = moss.process()
     print(f'Report URL: {url}')
     report_path = f'subs/{problem_id}_report.html'
-    moss.saveWebPage(url, report_path)
     print(f'Saved report to {report_path}')
 
 
