@@ -1,5 +1,6 @@
-# Settings and .idea
+# Settings and .idea and data folder
 settings.py
+subs/
 .idea/
 
 # Byte-compiled / optimized / DLL files

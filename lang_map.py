@@ -14,7 +14,7 @@ This just covers common languages used on DM::OJ
 
 __langs = (
     Lang(('C', 'C11'), 'c', 'c'),
-    Lang(('CPP', 'CPP0X', 'CPP11', 'CPP14', 'CPP17'), 'cpp', 'cc'),
+    Lang(('C++', 'C++03', 'C++11', 'C++14', 'C++17'), 'cpp', 'cc'),
     Lang(('PY2', 'PY3', 'PYPY', 'PYPY3'), 'py', 'python'),
     Lang(('JAVA8', 'JAVA9', 'JAVA10', 'JAVA11'), 'java', 'java'),
     Lang(('HASK',), 'hs', 'haskell'),

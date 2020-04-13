@@ -3,7 +3,7 @@ import requests
 import time
 from bs4 import BeautifulSoup
 from collections import namedtuple
-from .settings import DMOJ_URL, DMOJ_API_KEY, DMOJ_REQUEST_DELAY
+from settings import DMOJ_URL, DMOJ_API_KEY, DMOJ_REQUEST_DELAY
 
 Submission = namedtuple('Submission', 'sub_id user_id lang')
 
@@ -43,20 +43,21 @@ def get_solved(problem_id):
     subs = []
     page_no = 1
     cur_subs = get_solved_page(problem_id, page_no)
+    time.sleep(DMOJ_REQUEST_DELAY)
     while cur_subs:
         subs.extend(cur_subs)
-        print(f'Parsed page {page_no}, got {len(cur_subs)} submissions')
+        print(f'Parsed page {page_no}, got {len(cur_subs)} submission ids')
 
-        time.sleep(DMOJ_REQUEST_DELAY)
         page_no += 1
         cur_subs = get_solved_page(problem_id, page_no)
+        time.sleep(DMOJ_REQUEST_DELAY)
 
     return subs
 
 
 def get_user_subs(user_id):
-    return requests.get(f'{DMOJ_URL}api/user/submissions/{user_id}')
+    return requests.get(f'{DMOJ_URL}api/user/submissions/{user_id}').json()
 
 
 def get_sub_src(sub_id):
-    return requests.get(f'{DMOJ_URL}src/{sub_id}', headers=dmoj_auth_header)
+    return requests.get(f'{DMOJ_URL}src/{sub_id}/raw', headers=dmoj_auth_header).text.replace('\r', '')
