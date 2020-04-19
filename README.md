@@ -2,6 +2,10 @@
 
 DM::OJ automatic copy paste police service!
 
+## Background
+
+Ever since the introduction of points to DM::OJ (absolutely prehistory in internet time), DM::OJ has had an issue with code copiers who use publically available solution repositories.  This tool attempts to address that issue by using Stanford MOSS to help find copied code.
+
 ## Steps
 
 1. Register with MOSS and get your user ID
