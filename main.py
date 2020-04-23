@@ -1,11 +1,10 @@
-import requests
 import time
-import mosspy
-import os
-from lang_map import get_ext, get_moss_lang
-from settings import MOSS_ID, DMOJ_HANDLE, DMOJ_URL, MODE, TARGET_HANDLE, PROBLEM_ID, PROBLEM_CHECK_COUNT, \
+
+import requests
+
+from settings import DMOJ_HANDLE, DMOJ_URL, MODE, TARGET_HANDLE, PROBLEM_ID, PROBLEM_CHECK_COUNT, \
     DMOJ_REQUEST_DELAY
-from problem import get_solved, get_sub_src
+from problem import download_subs
 
 
 def solved_list(user_id):
@@ -14,53 +13,7 @@ def solved_list(user_id):
 
 def check_problem(problem_id):
     print(f'Checking problem {problem_id}...')
-    subs = get_solved(problem_id)
-    target_sub_id = None
-    target_lang = None
-
-    # Make subs directory
-    if not os.path.exists('subs'):
-        os.mkdir('subs')
-
-    # Get target submission
-    for sub_id, user_id, lang in subs:
-        if user_id == TARGET_HANDLE:
-            target_sub_id = sub_id
-            target_lang = lang
-            with open(f'subs/target_src.{get_ext(lang)}', 'w') as f:
-                f.write(get_sub_src(sub_id))
-            time.sleep(DMOJ_REQUEST_DELAY)
-
-            print(f'Got submission source of target: {sub_id} in {lang}')
-            break
-
-    if not target_lang:
-        raise ValueError(f'Could not find Accepted submission for {problem_id}')
-
-    # Get submission ids of other users
-    other_ids = []
-    for sub_id, user_id, lang in subs:
-        if user_id != TARGET_HANDLE and lang == target_lang:
-            with open(f'subs/{sub_id}_src.{get_ext(target_lang)}', 'w') as f:
-                f.write(get_sub_src(sub_id))
-            time.sleep(DMOJ_REQUEST_DELAY)
-            other_ids.append(sub_id)
-
-            print(f'Got accepted submission source: {sub_id} by {user_id}')
-
-    # MOSS
-    print()
-    moss = mosspy.Moss(MOSS_ID, get_moss_lang(target_lang))
-    moss.addBaseFile(f'subs/target_src.{get_ext(target_lang)}', 'target_submission')
-    for sub_id in other_ids:
-        moss.addFile(f'subs/{sub_id}_src.{get_ext(target_lang)}', sub_id)
-
-    print('Sending MOSS query...')
-    url = moss.send()
-    print(f'Report URL: {url}')
-    report_path = f'subs/{problem_id}_report.html'
-    moss.saveWebPage(url, report_path)
-    print(f'Saved report to {report_path}')
+    info = download_subs(TARGET_HANDLE, problem_id)
 
 
 if __name__ == '__main__':

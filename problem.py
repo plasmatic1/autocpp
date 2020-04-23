@@ -1,11 +1,15 @@
+import os.path
 import re
 import requests
 import time
+from lang_map import get_ext
+from moss_parser import problem_path, target_src_path, other_src_path
 from bs4 import BeautifulSoup
 from collections import namedtuple
-from settings import DMOJ_URL, DMOJ_API_KEY, DMOJ_REQUEST_DELAY
+from settings import DMOJ_URL, DMOJ_API_KEY, DMOJ_REQUEST_DELAY, SAVED_DATA_DIR
 
 Submission = namedtuple('Submission', 'sub_id user_id lang')
+ProblemSubmissions = namedtuple('ProblemSubmissions', 'problem_id lang target_sub_id other_sub_ids')
 
 dmoj_auth_header = {'Authorization': f'Bearer {DMOJ_API_KEY}'}
 
@@ -38,6 +42,12 @@ def get_solved_page(problem_id, page_no):
 
 
 def get_solved(problem_id):
+    """
+    Returns a list of submissions for a problem
+    :param problem_id: The problem to check
+    :return: A list of Submission objects
+    """
+
     print(f'Getting best submissions for {problem_id}')
 
     subs = []
@@ -55,9 +65,70 @@ def get_solved(problem_id):
     return subs
 
 
+def download_subs(target_handle, problem_id):
+    """
+    Downloads all accepted submissions for a problem that match the language used by a given target user.  Downloaded submissions will be in the folder ./SAVED_DATA_DIR/problem_id where SAVED_DATA_DIR is from configuration and `problem_id` is the parameter
+
+    Additionally, this procedure assumes that user DMOJ_HANDLE has access to this problem's sources (either solved it already or is an Admin)
+    :param target_handle: Only submissions with the same language as the target will be downloaded
+    :param problem_id: The id of the problem to download submissions from
+    :return: A ProblemSubmissions object
+    """
+
+    subs = get_solved(problem_id)
+    target_sub_id = None
+    target_lang = None
+
+    # Make subs directory
+    if not os.path.exists(SAVED_DATA_DIR):
+        os.mkdir(SAVED_DATA_DIR)
+    if not os.path.exists(problem_path(problem_id)):
+        os.mkdir(problem_path(problem_id))
+
+    # Get target submission
+    for sub_id, user_id, lang in subs:
+        if user_id == target_handle:
+            target_sub_id = sub_id
+            target_lang = lang
+            with open(target_src_path(problem_id, get_ext(lang)), 'w') as f:
+                f.write(get_sub_src(sub_id))
+            time.sleep(DMOJ_REQUEST_DELAY)
+
+            print(f'Got submission source of target: {sub_id} in {lang}')
+            break
+
+    if not target_lang:
+        raise ValueError(f'Could not find Accepted submission for {problem_id}')
+
+    # Get submission ids of other users
+    other_ids = []
+    target_lang_ext = get_ext(target_lang)
+    for sub_id, user_id, lang in subs:
+        if user_id != target_handle and lang == target_lang:
+            with open(other_src_path(problem_id, target_lang_ext, sub_id), 'w') as f:
+                f.write(get_sub_src(sub_id))
+            time.sleep(DMOJ_REQUEST_DELAY)
+            other_ids.append(sub_id)
+
+            print(f'Got accepted submission source: {sub_id} by {user_id}')
+
+    return ProblemSubmissions(problem_id, target_lang, target_sub_id, other_ids)
+
+
 def get_user_subs(user_id):
+    """
+    Returns all submissions made by a user
+    :param user_id: The DMOJ handle of the user
+    :return: A list of submissions, in the DMOJ API format
+    """
+
     return requests.get(f'{DMOJ_URL}api/user/submissions/{user_id}').json()
 
 
 def get_sub_src(sub_id):
+    """
+    Returns the source code of a submission.  This assumes DMOJ_HANDLE has access to this submission already.
+    :param sub_id: The id of the submission to download
+    :return: Returns the source code of the submission
+    """
     return requests.get(f'{DMOJ_URL}src/{sub_id}/raw', headers=dmoj_auth_header).text.replace('\r', '')
