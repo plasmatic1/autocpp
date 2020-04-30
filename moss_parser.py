@@ -1,10 +1,12 @@
-import mosspy
-
-from lang_map import get_moss_lang, get_ext
-from settings import SAVED_DATA_DIR, MOSS_ID, MOSS_THRESHOLD
-from bs4 import BeautifulSoup
 import os.path
 import re
+
+import mosspy
+from bs4 import BeautifulSoup
+
+from lang_map import get_moss_lang, get_ext
+from main import log
+from settings import SAVED_DATA_DIR, MOSS_ID, MOSS_THRESHOLD
 
 
 def problem_path(problem_id):
@@ -38,11 +40,11 @@ class MossInteractor:
         for sub_id in self.other_sub_ids:
             moss.addFile(other_src_path(self.problem_id, self.lang_ext, sub_id), sub_id)
 
-        print('Sending MOSS query...')
+        log.log('Sending MOSS query...')
         url = moss.send()
-        print(f'Report URL: {url}')
+        log.log(f'Report URL: {url}')
         moss.saveWebPage(url, report_path(self.problem_id))
-        print(f'Saved report to {report_path(self.problem_id)}')
+        log.log(f'Saved report to {report_path(self.problem_id)}')
 
     def report_exists(self):
         return os.path.exists(report_path(self.problem_id))

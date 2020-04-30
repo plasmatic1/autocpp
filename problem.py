@@ -1,11 +1,14 @@
 import os.path
 import re
-import requests
 import time
-from lang_map import get_ext
-from moss_parser import problem_path, target_src_path, other_src_path
-from bs4 import BeautifulSoup
 from collections import namedtuple
+
+import requests
+from bs4 import BeautifulSoup
+
+from lang_map import get_ext
+from main import log
+from moss_parser import problem_path, target_src_path, other_src_path
 from settings import DMOJ_URL, DMOJ_API_KEY, DMOJ_REQUEST_DELAY, SAVED_DATA_DIR
 
 Submission = namedtuple('Submission', 'sub_id user_id lang')
@@ -48,7 +51,7 @@ def get_solved(problem_id):
     :return: A list of Submission objects
     """
 
-    print(f'Getting best submissions for {problem_id}')
+    log.log(f'Getting best submissions for {problem_id}')
 
     subs = []
     page_no = 1
@@ -56,7 +59,7 @@ def get_solved(problem_id):
     time.sleep(DMOJ_REQUEST_DELAY)
     while cur_subs:
         subs.extend(cur_subs)
-        print(f'Parsed page {page_no}, got {len(cur_subs)} submission ids')
+        log.log(f'Parsed page {page_no}, got {len(cur_subs)} submission ids')
 
         page_no += 1
         cur_subs = get_solved_page(problem_id, page_no)
@@ -94,7 +97,7 @@ def download_subs(target_handle, problem_id):
                 f.write(get_sub_src(sub_id))
             time.sleep(DMOJ_REQUEST_DELAY)
 
-            print(f'Got submission source of target: {sub_id} in {lang}')
+            log.log(f'Got submission source of target: {sub_id} in {lang}')
             break
 
     if not target_lang:
@@ -110,7 +113,7 @@ def download_subs(target_handle, problem_id):
             time.sleep(DMOJ_REQUEST_DELAY)
             other_ids.append(sub_id)
 
-            print(f'Got accepted submission source: {sub_id} by {user_id}')
+            log.log(f'Got accepted submission source: {sub_id} by {user_id}')
 
     return ProblemSubmissions(problem_id, target_lang, target_sub_id, other_ids)
 

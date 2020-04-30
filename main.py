@@ -1,14 +1,29 @@
 import time
+from queue import Queue
 
 import requests
 
+from log import Logger
+from problem import download_subs
 from settings import DMOJ_HANDLE, DMOJ_URL, MODE, TARGET_HANDLE, PROBLEM_ID, PROBLEM_CHECK_COUNT, \
     DMOJ_REQUEST_DELAY
-from problem import download_subs
+
+from threading import Event
 
 
 def solved_list(user_id):
     return requests.get(f'{DMOJ_URL}api/user/info/{user_id}').json()['solved_problems']
+
+
+# Driver Code
+moss_queue = Queue()
+moss_done = Event()
+threads = []
+log = Logger()
+
+
+def moss_query_thread(info):
+    pass  # TODO: Implementation
 
 
 def check_problem(problem_id):
@@ -16,7 +31,13 @@ def check_problem(problem_id):
     info = download_subs(TARGET_HANDLE, problem_id)
 
 
+# Run Main
+
 if __name__ == '__main__':
+    # Init threads
+    for i in range()
+
+    # Problem stuff
     if MODE == 'problem':
         check_problem(PROBLEM_ID)
     elif MODE == 'user':
@@ -40,3 +61,12 @@ if __name__ == '__main__':
             print()
     else:
         raise ValueError(f'Invalid mode {MODE} (Only [user, problem] are accepted')
+
+    # Wait for threads
+    for thread in threads:
+        log.log(f'Waiting for thread {thread.name} to terminate')
+        thread.join()
+        log.log(f'Thread {thread.name} terminated')
+
+    # Close log files
+    log.close_streams()
