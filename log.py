@@ -1,4 +1,5 @@
 import datetime
+import os
 from collections import namedtuple
 from threading import current_thread, Lock
 
@@ -15,6 +16,11 @@ OffendingSubmission = namedtuple('OffendingSubmissions',
 
 class Logger:
     def __init__(self):
+        # Make subs directory
+        if not os.path.exists(SAVED_DATA_DIR):
+            os.mkdir(SAVED_DATA_DIR)
+
+        # Open file stream
         self.subs_file = open(f'{SAVED_DATA_DIR}/{SUSPICIOUS_SUBS_FILE}', 'w')
         self.log_file = open(f'{SAVED_DATA_DIR}/{LOG_FILE}', 'w')
 

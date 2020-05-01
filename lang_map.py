@@ -13,8 +13,8 @@ This just covers common languages used on DM::OJ
 '''
 
 __langs = (
-    Lang(('C', 'C11'), 'c', 'c'),
-    Lang(('C++', 'C++03', 'C++11', 'C++14', 'C++17'), 'cpp', 'cc'),
+    Lang(('C', 'C11', 'Clang'), 'c', 'c'),
+    Lang(('C++', 'C++03', 'C++11', 'C++14', 'C++17', 'Clang++'), 'cpp', 'cc'),
     Lang(('PY2', 'PY3', 'PYPY', 'PYPY3'), 'py', 'python'),
     Lang(('JAVA8', 'JAVA9', 'JAVA10', 'JAVA11'), 'java', 'java'),
     Lang(('HASK',), 'hs', 'haskell'),
@@ -32,7 +32,7 @@ for dmoj_langs, file_ext, moss_lang in __langs:
 
 
 def get_ext(dmoj_lang):
-    return LANG_TO_EXT[dmoj_lang]
+    return LANG_TO_EXT.get(dmoj_lang)
 
 
 def get_moss_lang(dmoj_lang):

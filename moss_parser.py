@@ -49,6 +49,12 @@ class MossInteractor:
         for sub_id in self.other_sub_ids:
             moss.addFile(other_src_path(self.problem_id, self.lang_ext, sub_id), sub_id)
 
+        # Add base file if it exists
+        if os.path.exists(f'template/{self.lang_ext}'):
+            log.log(f'Template file for lang {self.lang_ext} found, adding template file...')
+            moss.addBaseFile(f'template/{self.lang_ext}', 'template')
+
+        # Send moss query
         log.log('Sending MOSS query...')
         url = moss.send()
         log.log(f'Report URL: {url}')
@@ -69,7 +75,7 @@ class MossInteractor:
             return match.group(1), int(match.group(2)) / 100
 
         with open(report_path(self.problem_id)) as f:
-            bs = BeautifulSoup(f.read(), 'html.parser')
+            bs = BeautifulSoup(f.read(), 'lxml')  # html.parser misses "other submission" tags for some reason
             offending_subs = []
 
             for row in bs.find_all('tr'):

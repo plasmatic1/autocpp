@@ -75,7 +75,7 @@ def download_subs(target_handle, problem_id):
     Additionally, this procedure assumes that user DMOJ_HANDLE has access to this problem's sources (either solved it already or is an Admin)
     :param target_handle: Only submissions with the same language as the target will be downloaded
     :param problem_id: The id of the problem to download submissions from
-    :return: A ProblemSubmissions object
+    :return: A ProblemSubmissions object, or None if an error occured
     """
 
     subs = get_solved(problem_id)
@@ -96,7 +96,7 @@ def download_subs(target_handle, problem_id):
         if user_id == target_handle:
             target_sub_id = sub_id
             target_lang = lang
-            with open(target_src_path(problem_id, get_ext(lang)), 'w') as f:
+            with open(target_src_path(problem_id, get_ext(lang)), 'w', encoding='utf8') as f:
                 f.write(get_sub_src(sub_id))
             time.sleep(DMOJ_REQUEST_DELAY)
 
@@ -110,9 +110,13 @@ def download_subs(target_handle, problem_id):
     # Get submission ids of other users
     other_ids = []
     target_lang_ext = get_ext(target_lang)
+    if not target_lang_ext:
+        log.log(f'ERROR: Language {target_lang} currently not supported')
+        return None
+
     for sub_id, user_id, lang in subs:
-        if user_id != target_handle and lang == target_lang:
-            with open(other_src_path(problem_id, target_lang_ext, sub_id), 'w') as f:
+        if user_id != target_handle and get_ext(lang) == target_lang_ext: # Use extension instead of DMOJ language so Java8/9/10/11 are grouped
+            with open(other_src_path(problem_id, target_lang_ext, sub_id), 'w', encoding='utf8') as f:
                 f.write(get_sub_src(sub_id))
             time.sleep(DMOJ_REQUEST_DELAY)
             other_ids.append(sub_id)

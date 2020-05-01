@@ -19,13 +19,14 @@ from bs4 import BeautifulSoup
 #     t = Thread(target=f)
 #     t.start()
 
+th=0.4
 def parse_report():
     def match_sub_id_and_prec(tag):
         match = re.search(r'(\d+) \((\d+)%\)', tag.text)
         return match.group(1), int(match.group(2)) / 100
 
-    with open('subs/ccc14s5/report.html') as f:
-        bs = BeautifulSoup(f.read(), features='html')
+    with open('subs/ccc15s5/report.html') as f:
+        bs = BeautifulSoup(f.read(), 'lxml')
         for row in bs.find_all('tr'):
             if row.find('th'): # Header row
                 continue

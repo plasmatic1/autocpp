@@ -36,7 +36,8 @@ def moss_query_runner():
 def check_problem(problem_id):
     log.log(f'Checking problem {problem_id}...')
     info = download_subs(TARGET_HANDLE, problem_id)
-    moss_queue.put(info)
+    if info:
+        moss_queue.put(info)
 
 
 # Run Main
