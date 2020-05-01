@@ -7,12 +7,12 @@ import requests
 from bs4 import BeautifulSoup
 
 from lang_map import get_ext
-from main import log
+from log import log
 from moss_parser import problem_path, target_src_path, other_src_path
 from settings import DMOJ_URL, DMOJ_API_KEY, DMOJ_REQUEST_DELAY, SAVED_DATA_DIR
 
 Submission = namedtuple('Submission', 'sub_id user_id lang')
-ProblemSubmissions = namedtuple('ProblemSubmissions', 'problem_id lang target_sub_id other_sub_ids')
+ProblemSubmissions = namedtuple('ProblemSubmissions', 'problem_id lang target_sub_id other_sub_ids sub_map')
 
 dmoj_auth_header = {'Authorization': f'Bearer {DMOJ_API_KEY}'}
 
@@ -88,6 +88,9 @@ def download_subs(target_handle, problem_id):
     if not os.path.exists(problem_path(problem_id)):
         os.mkdir(problem_path(problem_id))
 
+    # Submission map - maps submission id to handle
+    sub_map = {}
+
     # Get target submission
     for sub_id, user_id, lang in subs:
         if user_id == target_handle:
@@ -98,6 +101,7 @@ def download_subs(target_handle, problem_id):
             time.sleep(DMOJ_REQUEST_DELAY)
 
             log.log(f'Got submission source of target: {sub_id} in {lang}')
+            sub_map[sub_id] = target_handle
             break
 
     if not target_lang:
@@ -114,8 +118,9 @@ def download_subs(target_handle, problem_id):
             other_ids.append(sub_id)
 
             log.log(f'Got accepted submission source: {sub_id} by {user_id}')
+            sub_map[sub_id] = user_id
 
-    return ProblemSubmissions(problem_id, target_lang, target_sub_id, other_ids)
+    return ProblemSubmissions(problem_id, target_lang, target_sub_id, other_ids, sub_map)
 
 
 def get_user_subs(user_id):
