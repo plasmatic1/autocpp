@@ -1,12 +1,12 @@
 import datetime
 from collections import namedtuple
-from threading import current_thread
+from threading import current_thread, Lock
 
 from settings import LOG_FILE, SUSPICIOUS_SUBS_FILE, SAVED_DATA_DIR, DMOJ_URL
 
 
 def dmoj_sub_url(sub_id):
-    return f'{DMOJ_URL}submission/{sub_id}/'
+    return f'{DMOJ_URL}submission/{sub_id}'
 
 
 OffendingSubmission = namedtuple('OffendingSubmissions',
@@ -18,14 +18,19 @@ class Logger:
         self.subs_file = open(f'{SAVED_DATA_DIR}/{SUSPICIOUS_SUBS_FILE}', 'w')
         self.log_file = open(f'{SAVED_DATA_DIR}/{LOG_FILE}', 'w')
 
+        self.log_lock = Lock()
+        self.subs_file_lock = Lock()
+
     def close_streams(self):
         self.subs_file.close()
         self.log_file.close()
 
     def log(self, line=''):
         log_line = f'[{current_thread().name}/{datetime.datetime.now().strftime("%H:%M:%S")}] ' + line
+        self.log_lock.acquire()
         print(log_line)
         self.log_file.write(log_line + '\n')
+        self.log_lock.release()
 
     def add_sub(self, offending_sub_id, original_sub_id, match_amount, offending_user=None):
         """
@@ -37,13 +42,16 @@ class Logger:
         :return: None
         """
 
+        match_prec = f'{(match_amount * 100):.1f}%'
         if offending_user:
-            log_line = f'other submission (offender {offending_user}) {match_amount}: {dmoj_sub_url(offending_sub_id)}, source: {dmoj_sub_url(original_sub_id)}'
+            log_line = f'OTHER MATCH (offender: {offending_user}) {match_prec}: {dmoj_sub_url(offending_sub_id)}, source: {dmoj_sub_url(original_sub_id)}'
         else:
-            log_line = f'MATCH {match_amount}: {dmoj_sub_url(offending_sub_id)}, source: {dmoj_sub_url(original_sub_id)}'
+            log_line = f'MATCH {match_prec}: {dmoj_sub_url(offending_sub_id)}, source: {dmoj_sub_url(original_sub_id)}'
 
-        self.subs_file.write(log_line + '\n')
         self.log(log_line)
+        self.subs_file_lock.acquire()
+        self.subs_file.write(log_line + '\n')
+        self.subs_file_lock.release()
 
     def add_problem(self, problem_id, subs):
         """
