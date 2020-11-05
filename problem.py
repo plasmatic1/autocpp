@@ -41,8 +41,8 @@ def get_solved_page(problem_id, page_no):
                     sub_id = regex_find_href(tag, r'/submission/(\d+)').group(1)
                     lang = tag.find('span', {'class': 'language'}).text
                     subs.append(Submission(sub_id, user_id, lang))
-                except:
-                    pass
+                except Exception as e:
+                    log.log(f'ERROR: {e}')
 
         return subs  # Return nothing if subs is empty
 
