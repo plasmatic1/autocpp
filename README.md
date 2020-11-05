@@ -38,6 +38,9 @@ PROBLEM_CHECK_COUNT = 20  # If MODE == 'user', this is the number of problems to
 SAVED_DATA_DIR = 'subs'  # Where the retrieved data will be saved.  This includes MOSS reports and submission sources
 DMOJ_REQUEST_DELAY = 2.  # DM::OJ has a cloudflare system that flags your ip if you send more than 100 requests/minute.  A delay of DMOJ_REQUEST_DELAY seconds will be put between requests to the DMOJ website to prevent your ip from being flagged
 MOSS_THRESHOLD = 0.8  # (TO BE IMPLEMENTED) Threshold for submissions to be flagged as suspicious.  If two submissions are matching by >=MOSS_THRESHOLD, then the submissions ids will be flagged and outputted.
+LOG_FILE = 'log.txt'
+SUSPICIOUS_SUBS_FILE = 'suspicious.txt'
+MAX_THREADS = 1
 ```
 
 # TODO
