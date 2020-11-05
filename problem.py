@@ -105,7 +105,7 @@ def download_subs(target_handle, problem_id):
             break
 
     if not target_lang:
-        raise ValueError(f'Could not find Accepted submission for {problem_id}')
+        log.log(f'ERROR: Could not find Accepted submission for {problem_id}')
 
     # Get submission ids of other users
     other_ids = []
@@ -131,10 +131,10 @@ def get_user_subs(user_id):
     """
     Returns all submissions made by a user
     :param user_id: The DMOJ handle of the user
-    :return: A list of submissions, in the DMOJ API format
+    :return: A list of submissions, in the DMOJ APIv2 format
     """
 
-    return requests.get(f'{DMOJ_URL}api/user/submissions/{user_id}').json()
+    return requests.get(f'{DMOJ_URL}api/v2/submissions?user={user_id}').json()
 
 
 def get_sub_src(sub_id):
