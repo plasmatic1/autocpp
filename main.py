@@ -12,8 +12,7 @@ from settings import DMOJ_HANDLE, DMOJ_URL, MODE, TARGET_HANDLE, PROBLEM_ID, PRO
 
 
 def solved_list(user_id):
-    return requests.get(f'{DMOJ_URL}api/user/info/{user_id}').json()['solved_problems']
-
+    return requests.get(f'{DMOJ_URL}api/v2/user/{user_id}').json()['data']['object']['solved_problems']
 
 # Driver Code
 moss_queue = Queue()
@@ -58,8 +57,18 @@ if __name__ == '__main__':
         log.log('Note that only problems you already solved will be considered')
 
         # Get list of problems
-        problem_point_dict = dict(
-            ((k, v['points']) for k, v in requests.get(f'{DMOJ_URL}api/problem/list').json().items()))
+        problem_point_dict = {}
+        page = 1
+        while True:
+            current = requests.get(f'{DMOJ_URL}api/v2/problems?page={page}').json()
+            current_dict = dict(
+                ((item['code'], item['points']) for item in current['data']['objects']))
+            problem_point_dict = {**problem_point_dict, **current_dict}
+            if not current['data']['has_more']:
+                break
+            page += 1
+            time.sleep(DMOJ_REQUEST_DELAY)
+
         time.sleep(DMOJ_REQUEST_DELAY)
         you_solved = set(solved_list(DMOJ_HANDLE))
         time.sleep(DMOJ_REQUEST_DELAY)
