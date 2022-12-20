@@ -36,10 +36,13 @@ def get_solved_page(problem_id, page_no):
         subs = []
         for tag in soup.find_all('div', {'class': 'submission-row'}):
             if 'AC' in tag.find('div', {'class': 'sub-result'})['class']:  # Fake AC is not counted
-                user_id = regex_find_href(tag, r'/user/(\w+)').group(1)
-                sub_id = regex_find_href(tag, r'/submission/(\d+)').group(1)
-                lang = tag.find('span', {'class': 'language'}).text
-                subs.append(Submission(sub_id, user_id, lang))
+                try:
+                    user_id = regex_find_href(tag, r'/user/(\w+)').group(1)
+                    sub_id = regex_find_href(tag, r'/submission/(\d+)').group(1)
+                    lang = tag.find('span', {'class': 'language'}).text
+                    subs.append(Submission(sub_id, user_id, lang))
+                except Exception as e:
+                    log.log(e)
 
         return subs  # Return nothing if subs is empty
 
